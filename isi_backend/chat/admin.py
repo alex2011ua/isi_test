@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 
 from chat.models import Message, Thread
 
@@ -10,5 +11,8 @@ class MessageAdmin(admin.ModelAdmin):
 
 @admin.register(Thread)
 class ThreadAdmin(admin.ModelAdmin):
-    list_display = ("created_at", "updated_at")
+    list_display = ("created", "updated")
     raw_id_fields = ("participants",)
+
+
+admin.site.unregister(Group)
