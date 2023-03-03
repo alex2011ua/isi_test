@@ -54,7 +54,8 @@ class ThreadSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_last_message(obj):
         """Message."""
-        return MessageSerializer(obj.thread_message.all().first()).data
+        messages = obj.thread_message.filter().order_by('created').first()
+        return MessageSerializer(messages).data
 
 
 class MessagesSerializer(serializers.ModelSerializer):

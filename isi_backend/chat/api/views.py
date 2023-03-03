@@ -1,6 +1,7 @@
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response, status
 
@@ -8,8 +9,9 @@ from chat.api.serializers import MessageSerializer, MessagesSerializer, ThreadSe
 from chat.models import Message, Thread
 
 
-# view for registering users
 class RegisterView(APIView):
+    """view for registering users """
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -22,7 +24,19 @@ class ThreadCreate(generics.CreateAPIView):
     serializer_class = ThreadSerializer
 
 
-class UserThreads(APIView):
+class ThreadDelete(APIView):
+    """Delete thread by id."""
+
+    def get(self, request, pk):
+        try:
+            thread = Thread.objects.get(pk=pk)
+        except Exception:
+            raise NotFound
+        thread.delete_thread()
+        return Response(status=status.HTTP_200_OK)
+
+
+class UserThreads(generics.ListAPIView):
     """
     View all user's thread with last message.
 
@@ -41,7 +55,8 @@ class UserThreads(APIView):
 @api_view(('GET', "POST"))
 @permission_classes([IsAuthenticated])
 def get_create_message(request, *args, **kwargs):
-    """Return messages of add message in the thread."""
+    """Return messages or add message in the thread."""
+
     thread = Thread.objects.filter(id=kwargs.get("pk")).first()
     if not thread:
         raise NotFound
@@ -59,6 +74,8 @@ def get_create_message(request, *args, **kwargs):
 @api_view(('GET',))
 @permission_classes([IsAuthenticated])
 def messages_not_read(request, *args, **kwargs):
+    """Return count of unread messages for the user"""
+
     user = request.user
     count_unread_messages = Message.objects.filter(sender=user, is_read=False).count()
     return Response({"message": count_unread_messages})
