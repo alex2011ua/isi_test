@@ -1,16 +1,15 @@
+from chat.api.serializers import (MessageSerializer, MessagesSerializer,
+                                  ThreadSerializer, UserSerializer)
+from chat.models import Message, Thread
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
-from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response, status
 
-from chat.api.serializers import MessageSerializer, MessagesSerializer, ThreadSerializer, UserSerializer
-from chat.models import Message, Thread
-
 
 class RegisterView(APIView):
-    """view for registering users """
+    """view for registering users"""
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -21,6 +20,7 @@ class RegisterView(APIView):
 
 class ThreadCreate(generics.CreateAPIView):
     """Create new thread or return odl thread with given participants."""
+
     serializer_class = ThreadSerializer
 
 
@@ -37,22 +37,15 @@ class ThreadDelete(APIView):
 
 
 class UserThreads(generics.ListAPIView):
-    """
-    View all user's thread with last message.
+    """View all user's thread with last message with pagination."""
 
-    """
+    serializer_class = ThreadSerializer
 
-    def get(self, request, pk):
-        """
-        Return a list of threads.
-        """
-
-        thread = Thread.objects.filter(participants=pk)
-        serializer = ThreadSerializer(thread, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return Thread.objects.filter(participants=self.kwargs.get("pk"))
 
 
-@api_view(('GET', "POST"))
+@api_view(("GET", "POST"))
 @permission_classes([IsAuthenticated])
 def get_create_message(request, *args, **kwargs):
     """Return messages or add message in the thread."""
@@ -62,7 +55,9 @@ def get_create_message(request, *args, **kwargs):
         raise NotFound
     if request.method == "GET":
         message = Message.objects.filter(thread=thread)
-        return Response(data=MessagesSerializer(message, many=True).data, status=status.HTTP_200_OK)
+        return Response(
+            data=MessagesSerializer(message, many=True).data, status=status.HTTP_200_OK
+        )
     if request.method == "POST":
         # create message in the thread wiht user auth
         serializer = MessageSerializer(data=request.data)
@@ -71,7 +66,7 @@ def get_create_message(request, *args, **kwargs):
         return Response(data=MessagesSerializer(new_message).data)
 
 
-@api_view(('GET',))
+@api_view(("GET",))
 @permission_classes([IsAuthenticated])
 def messages_not_read(request, *args, **kwargs):
     """Return count of unread messages for the user"""
