@@ -23,8 +23,6 @@ class ThreadSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
 
     class Meta:
-        """Meta."""
-
         model = Thread
         fields = ("id", "updated", "participants", "last_message")
 
@@ -66,8 +64,6 @@ class MessagesSerializer(serializers.ModelSerializer):
     """Messages Serializer."""
 
     class Meta:
-        """Meta."""
-
         model = Message
         fields = ("id", "text", "is_read", "thread", "sender", "created")
 
@@ -76,7 +72,5 @@ class MessageSerializer(serializers.ModelSerializer):
     """One message serializer to create message."""
 
     class Meta:
-        """Meta."""
-
         model = Message
         fields = ("text",)

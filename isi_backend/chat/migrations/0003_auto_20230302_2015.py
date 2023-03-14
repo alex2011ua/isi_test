@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.db import migrations
 from django.utils import timezone
+import time
 
 
 def add_new_thread(apps, schema_editor):
@@ -39,6 +40,7 @@ def add_new_message(apps, schema_editor):
                 created=timezone.now(),
             )
         )
+        time.sleep(0.1)
     Message.objects.bulk_create(message)
 
 
