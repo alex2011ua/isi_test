@@ -17,7 +17,12 @@ class Thread(models.Model):
         verbose_name_plural = _("threads")
 
     def __str__(self):
-        return _("Participants: ") + str(self.participants)
+        all_participants = map(str, (list(self.participants.all())))
+        return _("Participants: ") + ", ".join(all_participants)
+
+    def __repr__(self):
+        all_participants = map(str, (list(self.participants.all())))
+        return _("Participants: ") + ", ".join(all_participants)
 
 
 class Message(models.Model):
@@ -41,6 +46,9 @@ class Message(models.Model):
 
     def __str__(self):
         return _("Text message:") + self.text
+
+    def __repr__(self):
+        return "message_id: " + str(self.pk)
 
     class Meta:
         verbose_name = _("message")

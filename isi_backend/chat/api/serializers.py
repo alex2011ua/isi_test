@@ -43,9 +43,7 @@ class ThreadSerializer(serializers.ModelSerializer):
         valid_participants = validated_data.get("participants")
         # find Thread
         thread = (
-            Thread.objects.filter(participants=valid_participants[0])
-            .filter(participants=valid_participants[1])
-            .first()
+            Thread.objects.filter(participants=valid_participants[0] and valid_participants[1]).first()
         )
         if not thread:
             thread = Thread.objects.create()

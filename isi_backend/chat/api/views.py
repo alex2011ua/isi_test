@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response, status
+from rest_framework import viewsets
+from django.contrib.auth.models import User
 
 
 class RegisterView(APIView):
@@ -16,24 +18,6 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-
-
-class ThreadCreate(generics.CreateAPIView):
-    """Create new thread or return odl thread with given participants."""
-
-    serializer_class = ThreadSerializer
-
-
-class ThreadDelete(APIView):
-    """Delete thread by id."""
-
-    def get(self, request, pk):
-        try:
-            thread = Thread.objects.get(pk=pk)
-        except Exception:
-            raise NotFound
-        thread.delete_thread()
-        return Response(status=status.HTTP_200_OK)
 
 
 class UserThreads(generics.ListAPIView):
@@ -74,3 +58,17 @@ def messages_not_read(request, *args, **kwargs):
     user = request.user
     count_unread_messages = Message.objects.filter(sender=user, is_read=False).count()
     return Response({"message": count_unread_messages})
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class ThreadViewSet(viewsets.ModelViewSet):
+    queryset = Thread.objects.all()
+    serializer_class = ThreadSerializer
+
+    def list(self, request):
+        return Response(status=200)
+
